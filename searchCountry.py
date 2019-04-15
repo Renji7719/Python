@@ -7,7 +7,7 @@ if __name__=='__main__':
 	args=sys.argv
 	argCount=len(args)
 	if(args[1]=="-help"):
-		print("refer to the following format")
+		print("Refer to the following format")
 		print("python searchCountry.py \"text file with ip written\"   \"Output destination text file path\"")
 		quit()
 	if(argCount!=3):
