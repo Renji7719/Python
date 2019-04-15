@@ -1,12 +1,22 @@
-import sys
+import sys,io
 import subprocess
 import re
 import os.path
 
 if __name__=='__main__':
+	args=sys.argv
+	argCount=len(args)
+	if(args[1]=="-help"):
+		print("refer to the following format")
+		print("python searchCountry.py \"text file with ip written\"   \"Output destination text file path\"")
+		quit()
+	if(argCount!=3):
+		print("Check Format")
+		print("python searchCountry.py \"text file with ip written\"  \"Output destination text file path\"")
+		quit()
 	country=''
-	ipAddress = open("ipdata.txt","r")
-	file=open("country.txt",'w')
+	ipAddress = open(args[1],"r")
+	file=open(args[2],'w')
 	cmd="whois "
 	file.write('-----------------------------------------')
 	file.write('\n')
@@ -15,7 +25,7 @@ if __name__=='__main__':
 		print(ip)
 		ip=ip.replace('\n','')
 		whoisResult=subprocess.Popen(["whois",ip],stdout=subprocess.PIPE )
-		grep=subprocess.Popen(["grep","ountry"],stdin=whoisResult.stdout, stdout=subprocess.PIPE)
+		grep=subprocess.Popen(["grep","country\|Country\|Organization"],stdin=whoisResult.stdout, stdout=subprocess.PIPE)
 		whoisResult.stdout.close()
 		country=grep.communicate()[0]
 		file.write(ip)
