@@ -24,7 +24,7 @@ if __name__=='__main__':
 	for ip in ipAddress:
 		print(ip)
 		ip=ip.replace('\n','')
-		whoisResult=subprocess.Popen(["whois",ip],stdout=subprocess.PIPE )
+		whoisResult=subprocess.Popen([cmd,ip],stdout=subprocess.PIPE )
 		grep=subprocess.Popen(["grep","country\|Country\|Organization"],stdin=whoisResult.stdout, stdout=subprocess.PIPE)
 		whoisResult.stdout.close()
 		country=grep.communicate()[0]
